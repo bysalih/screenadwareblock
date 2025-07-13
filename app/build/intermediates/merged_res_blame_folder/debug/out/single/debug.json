@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_ic_refresh.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/ic_refresh.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/layout_item_app.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/layout/item_app.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/layout_activity_main.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_ic_settings.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/ic_settings.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/layout_item_app_enhanced.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/layout/item_app_enhanced.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/layout_activity_settings.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_ic_security.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/ic_security.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/menu_main_menu.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/menu/main_menu.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_ic_launcher.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_threat_details_background.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/threat_details_background.xml"
+    },
+    {
+        "merged": "com.screenadwareblock.app-merged_res-40:/drawable_threat_level_background.xml.flat",
+        "source": "com.screenadwareblock.app-main-42:/drawable/threat_level_background.xml"
+    }
+]

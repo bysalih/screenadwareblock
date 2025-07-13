@@ -2,153 +2,197 @@
 package com.screenadwareblock
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.progressindicator.LinearProgressIndicator
-import com.screenadwareblock.adapter.EnhancedAppListAdapter
-import com.screenadwareblock.databinding.ActivityMainBinding
-import com.screenadwareblock.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: EnhancedAppListAdapter
-    private val viewModel: MainViewModel by viewModels()
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var progressBar: ProgressBar
+    private lateinit var tvThreatCount: TextView
+    private lateinit var layoutEmpty: LinearLayout
+    private lateinit var fabScan: FloatingActionButton
+    
+    private lateinit var adapter: SimpleAppListAdapter
+    private val installedApps = mutableListOf<AppInfo>()
+    private val threatApps = mutableListOf<AppInfo>()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
         
-        setupToolbar()
+        initViews()
         setupRecyclerView()
-        setupSwipeRefresh()
-        setupFab()
-        observeViewModel()
-        
-        // İlk tarama
-        if (savedInstanceState == null) {
-            viewModel.scanAllApps()
-        }
+        setupListeners()
+        loadInstalledApps()
     }
     
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.title = "Reklam Engelleyici"
+    private fun initViews() {
+        recyclerView = findViewById(R.id.recyclerView)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        progressBar = findViewById(R.id.progressBar)
+        tvThreatCount = findViewById(R.id.tvThreatCount)
+        layoutEmpty = findViewById(R.id.layoutEmpty)
+        fabScan = findViewById(R.id.fabScan)
     }
     
     private fun setupRecyclerView() {
-        adapter = EnhancedAppListAdapter(
-            onUninstallClick = { app -> uninstallApp(app.packageName) },
-            onWhitelistClick = { app -> viewModel.whitelistApp(app.packageName, !app.isWhitelisted) }
-        )
+        adapter = SimpleAppListAdapter(installedApps) { appInfo ->
+            uninstallApp(appInfo)
+        }
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+    
+    private fun setupListeners() {
+        fabScan.setOnClickListener {
+            scanForThreats()
+        }
         
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = this@MainActivity.adapter
+        swipeRefreshLayout.setOnRefreshListener {
+            loadInstalledApps()
         }
     }
     
-    private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.scanAllApps()
-        }
-    }
-    
-    private fun setupFab() {
-        binding.fabScan.setOnClickListener {
-            viewModel.scanAllApps()
-        }
-    }
-    
-    private fun observeViewModel() {
-        viewModel.allApps.observe(this) { apps ->
-            adapter.submitList(apps)
-            updateEmptyState(apps.isEmpty())
-        }
-        
-        viewModel.isScanning.observe(this) { isScanning ->
-            binding.swipeRefresh.isRefreshing = isScanning
-            binding.progressBar.visibility = if (isScanning) View.VISIBLE else View.GONE
-            binding.fabScan.isEnabled = !isScanning
-        }
-        
-        viewModel.scanProgress.observe(this) { progress ->
-            binding.progressBar.progress = progress
-        }
-        
-        viewModel.threatCount.observe(this) { count ->
-            supportActionBar?.subtitle = if (count > 0) {
-                "$count tehdit tespit edildi"
-            } else {
-                "Hiç tehdit bulunamadı"
+    private fun loadInstalledApps() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val packageManager = packageManager
+                val packages = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+                val apps = mutableListOf<AppInfo>()
+                
+                for (packageInfo in packages) {
+                    val appInfo = AppInfo(
+                        packageName = packageInfo.packageName,
+                        appName = packageInfo.loadLabel(packageManager).toString(),
+                        isSystemApp = (packageInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
+                        threatLevel = ThreatLevel.SAFE
+                    )
+                    apps.add(appInfo)
+                }
+                
+                withContext(Dispatchers.Main) {
+                    installedApps.clear()
+                    installedApps.addAll(apps)
+                    adapter.notifyDataSetChanged()
+                    swipeRefreshLayout.isRefreshing = false
+                    
+                    if (apps.isEmpty()) {
+                        layoutEmpty.visibility = LinearLayout.VISIBLE
+                        recyclerView.visibility = RecyclerView.GONE
+                    } else {
+                        layoutEmpty.visibility = LinearLayout.GONE
+                        recyclerView.visibility = RecyclerView.VISIBLE
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    swipeRefreshLayout.isRefreshing = false
+                    Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-        
-        viewModel.lastScanTime.observe(this) { time ->
-            if (time > 0) {
-                val timeStr = android.text.format.DateFormat.format("dd/MM/yyyy HH:mm", time)
-                Toast.makeText(this, "Son tarama: $timeStr", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun scanForThreats() {
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                progressBar.visibility = ProgressBar.VISIBLE
+            }
+            
+            try {
+                threatApps.clear()
+                
+                // Basit tehdit tespit algoritması
+                for (app in installedApps) {
+                    val packageName = app.packageName.lowercase()
+                    
+                    when {
+                        packageName.contains("cleaner") ||
+                        packageName.contains("booster") ||
+                        packageName.contains("battery") ||
+                        packageName.contains("memory") ||
+                        packageName.contains("speed") ||
+                        packageName.contains("optimizer") ||
+                        packageName.contains("antivirus") ||
+                        packageName.contains("security") -> {
+                            app.threatLevel = ThreatLevel.SUSPICIOUS
+                            threatApps.add(app)
+                        }
+                        packageName.contains("ads") ||
+                        packageName.contains("adware") ||
+                        packageName.contains("popup") ||
+                        packageName.contains("malware") -> {
+                            app.threatLevel = ThreatLevel.MALWARE
+                            threatApps.add(app)
+                        }
+                        else -> {
+                            app.threatLevel = ThreatLevel.SAFE
+                        }
+                    }
+                }
+                
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = ProgressBar.GONE
+                    tvThreatCount.text = threatApps.size.toString()
+                    adapter.notifyDataSetChanged()
+                    
+                    val message = if (threatApps.isEmpty()) {
+                        "Tehdit bulunamadı!"
+                    } else {
+                        "${threatApps.size} şüpheli uygulama bulundu!"
+                    }
+                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = ProgressBar.GONE
+                    Toast.makeText(this@MainActivity, "Tarama hatası: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
     
-    private fun updateEmptyState(isEmpty: Boolean) {
-        binding.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        binding.recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
-    }
-    
-    private fun uninstallApp(packageName: String) {
+    private fun uninstallApp(appInfo: AppInfo) {
         try {
-            val intent = Intent(Intent.ACTION_DELETE).apply {
-                data = Uri.parse("package:$packageName")
+            if (appInfo.isSystemApp) {
+                Toast.makeText(this, "Sistem uygulaması kaldırılamaz!", Toast.LENGTH_SHORT).show()
+                return
             }
+            
+            val intent = Intent(Intent.ACTION_DELETE)
+            intent.data = Uri.parse("package:${appInfo.packageName}")
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(this, "Uygulama kaldırılamadı: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Kaldırma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-    
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-    
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_scan -> {
-                viewModel.scanAllApps()
-                true
-            }
-            R.id.action_threats_only -> {
-                // Sadece tehditli uygulamaları göster
-                viewModel.threatApps.observe(this) { threatApps ->
-                    adapter.submitList(threatApps)
-                }
-                true
-            }
-            R.id.action_all_apps -> {
-                // Tüm uygulamaları göster
-                viewModel.allApps.observe(this) { allApps ->
-                    adapter.submitList(allApps)
-                }
-                true
-            }
-            R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+}
+
+data class AppInfo(
+    val packageName: String,
+    val appName: String,
+    val isSystemApp: Boolean,
+    var threatLevel: ThreatLevel
+)
+
+enum class ThreatLevel {
+    SAFE, SUSPICIOUS, DANGEROUS, MALWARE
 }
