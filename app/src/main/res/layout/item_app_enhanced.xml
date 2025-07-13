@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/tools"
+    android:id="@+id/cardApp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Uygulama başlığı ve tehdit seviyesi -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textAppName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Uygulama Adı"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:textColorPrimary" />
+
+                <TextView
+                    android:id="@+id/textPackageName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="com.example.package"
+                    android:textSize="12sp"
+                    android:textColor="?android:textColorSecondary"
+                    android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textThreatLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Güvenli"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:background="@drawable/threat_level_background"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <!-- Tehdit detayları -->
+        <TextView
+            android:id="@+id/textThreatDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tehdit bulunamadı"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/threat_details_background"
+            android:padding="8dp" />
+
+        <!-- İzinler ve sistem bilgisi -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/textSuspiciousPermissions"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Şüpheli izin yok"
+                android:textSize="11sp"
+                android:textColor="?android:textColorSecondary" />
+
+            <TextView
+                android:id="@+id/textSystemApp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kullanıcı Uygulaması"
+                android:textSize="11sp"
+                android:textColor="?android:textColorSecondary" />
+
+        </LinearLayout>
+
+        <!-- Yükleme tarihi -->
+        <TextView
+            android:id="@+id/textInstallDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Yükleme: 01/01/2024"
+            android:textSize="11sp"
+            android:textColor="?android:textColorSecondary"
+            android:layout_marginTop="4dp" />
+
+        <!-- Butonlar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="end">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/toggleWhitelist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Güvenli"
+                android:textSize="12sp"
+                android:layout_marginEnd="16dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonUninstall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kaldır"
+                android:textSize="12sp"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                app:backgroundTint="@color/button_uninstall_color" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

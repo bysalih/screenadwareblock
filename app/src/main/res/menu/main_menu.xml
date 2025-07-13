@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/action_scan"
+        android:icon="@drawable/ic_refresh"
+        android:title="Tarama Yap"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_threats_only"
+        android:title="Sadece Tehditler"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_all_apps"
+        android:title="Tüm Uygulamalar"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Ayarlar"
+        app:showAsAction="never" />
+
+</menu>
