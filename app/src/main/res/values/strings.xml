@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Reklam Engelleyici</string>
+    <string name="scan_apps">Uygulamaları Tara</string>
+    <string name="threats_only">Sadece Tehditler</string>
+    <string name="all_apps">Tüm Uygulamalar</string>
+    <string name="settings">Ayarlar</string>
+    <string name="uninstall">Kaldır</string>
+    <string name="whitelist">Güvenli</string>
+    <string name="safe">Güvenli</string>
+    <string name="suspicious">Şüpheli</string>
+    <string name="dangerous">Tehlikeli</string>
+    <string name="malware">Reklam/Kötü Amaçlı</string>
+    <string name="no_threats_found">Hiç tehdit bulunamadı</string>
+    <string name="threats_detected">%d tehdit tespit edildi</string>
+    <string name="last_scan">Son tarama: %s</string>
+    <string name="scanning">Taranıyor...</string>
+    <string name="scan_complete">Tarama tamamlandı</string>
+    <string name="system_app">Sistem Uygulaması</string>
+    <string name="user_app">Kullanıcı Uygulaması</string>
+    <string name="cannot_uninstall">Kaldırılamaz</string>
+    <string name="install_date">Yükleme: %s</string>
+    <string name="suspicious_permissions">Şüpheli İzinler: %d</string>
+    <string name="no_suspicious_permissions">Şüpheli izin yok</string>
+    <string name="no_threats_found_desc">Tehdit bulunamadı</string>
+    <string name="empty_state_title">Henüz uygulama taranmadı</string>
+    <string name="empty_state_desc">Uygulamaları taramak için yenile butonuna dokunun</string>
+</resources>
